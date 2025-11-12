@@ -1,4 +1,4 @@
-# RIS Guides
+# WashU RIS Tools
 
 A collection of Dockerfiles, documentation, and other scripts used on the WashU RIS Compute platform.
 
