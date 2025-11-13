@@ -35,12 +35,7 @@ RUN mkdir -p /usr/share/man/man1 /usr/share/man/man2 \
             python3-numpy \
             python3-pip \
             python3-venv \
-            unzip \
-      && add-apt-repository ppa:openjdk-r/ppa \
-      && apt update \
-      && apt install -y \
-            default-jre \
-            default-jdk
+            unzip
 
 # Prerequisite 7: Python3 environment
 ENV VIRT_ENV=/opt/venv
@@ -55,17 +50,20 @@ ENV PATH=$FSLDIR:$PATH
 
 # Prerequisite 3: freesurfer
 RUN mkdir -p /usr/local/freesurfer
-RUN wget https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/6.0.0/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz
-RUN tar -xzf freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz && mv freesurfer /usr/local/ && rm freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz
+RUN wget https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/6.0.0/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz \
+      && tar -xzf freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz \
+      && mv freesurfer /usr/local/ \
+      && rm freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz
 COPY license.txt /usr/local/freesurfer/license.txt
 ENV PATH=/usr/local/freesurfer/bin:$PATH
 ENV FS_LICENSE=/usr/local/freesurfer/license.txt
 
 # Prerequisite 4: Connectome Workbench
 RUN mkdir -p /usr/local/connectome-workbench
-RUN wget https://www.humanconnectome.org/storage/app/media/workbench/workbench-linux64-v2.1.0.zip
-RUN unzip workbench-linux64-v2.1.0.zip -d /usr/local/connectome-workbench && rm workbench-linux64-v2.1.0.zip
-RUN chmod +x /usr/local/connectome-workbench/workbench/bin_linux64
+RUN wget https://www.humanconnectome.org/storage/app/media/workbench/workbench-linux64-v2.1.0.zip \
+      && unzip workbench-linux64-v2.1.0.zip -d /usr/local/connectome-workbench \
+      && rm workbench-linux64-v2.1.0.zip \
+      && chmod +x /usr/local/connectome-workbench/workbench/bin_linux64
 ENV C3W_HOME=/usr/local/connectome-workbench/workbench/bin_linux64
 ENV PATH=$C3W_HOME:$PATH
 
@@ -74,29 +72,37 @@ RUN pip3 install git+https://github.com/Washington-University/gradunwarp.git@1.2
 
 # Prerequisite 6: MSM_HOCR v3.0
 RUN mkdir -p /usr/local/msm_hocr
-RUN wget https://github.com/ecr05/MSM_HOCR/releases/download/v3.0FSL/msm_centos_v3 && mv msm_centos_v3 /usr/local/msm_hocr/msm_hocr
-RUN chmod +x /usr/local/msm_hocr/msm_hocr
+RUN wget https://github.com/ecr05/MSM_HOCR/releases/download/v3.0FSL/msm_centos_v3 \
+      && mv msm_centos_v3 /usr/local/msm_hocr/msm_hocr \
+      && chmod +x /usr/local/msm_hocr/msm_hocr
 ENV MSM_HOCR_HOME=/usr/local/msm_hocr
 ENV PATH=$MSM_HOCR_HOME:$PATH
 
 # Prerequisite 8: MRTrix3
-RUN git clone http://github.com/MRtrix3/mrtrix3.git
-RUN cd mrtrix3 && ./configure
-RUN cd mrtrix3 && ./build
-RUN cd mrtrix3 && tar cvfz mrtrix3.tgz bin/ lib/ share/
-RUN mkdir /usr/local/mrtrix3
-RUN cd mrtrix3 && cp ./mrtrix3.tgz /usr/local/mrtrix3/
-RUN cd /usr/local/mrtrix3/ && tar xvfz mrtrix3.tgz
+RUN mkdir -p /usr/local/mrtrix3
+RUN git clone http://github.com/MRtrix3/mrtrix3.git \
+      && cd mrtrix3 \
+      && ./configure \
+      && ./build \
+      && tar cvfz mrtrix3.tgz bin/ lib/ share/ \
+      && mv mrtrix3.tgz /usr/local/mrtrix3/ \
+      && cd /usr/local/mrtrix3/ \
+      && tar xvfz mrtrix3.tgz \
+      && rm mrtrix3.tgz
 ENV PATH=/usr/local/mrtrix3/bin:$PATH
 
 # Prerequisite 9: ANTs
-RUN wget https://github.com/ANTsX/ANTs/releases/download/v2.6.3/ants-2.6.3-ubuntu-22.04-X64-gcc.zip
-RUN unzip ants-2.6.3-ubuntu-22.04-X64-gcc.zip && mv ants-2.6.3 /usr/local/ants && rm ants-2.6.3-ubuntu-22.04-X64-gcc.zip
+RUN wget https://github.com/ANTsX/ANTs/releases/download/v2.6.3/ants-2.6.3-ubuntu-22.04-X64-gcc.zip \
+      && unzip ants-2.6.3-ubuntu-22.04-X64-gcc.zip \
+      && mv ants-2.6.3 /usr/local/ants \
+      && rm ants-2.6.3-ubuntu-22.04-X64-gcc.zip
 ENV ANTS_HOME=/usr/local/ants
 ENV PATH=$ANTS_HOME/bin:$PATH
 
 # Prerequisite 10: c3d
-RUN wget https://sourceforge.net/projects/c3d/files/c3d/Nightly/c3d-nightly-Linux-gcc64.tar.gz/download -O c3d-nightly-Linux-gcc64.tar.gz
-RUN tar -xzf c3d-nightly-Linux-gcc64.tar.gz && mv c3d-1.4.4-Linux-gcc64 /usr/local/c3d && rm c3d-nightly-Linux-gcc64.tar.gz
+RUN wget https://sourceforge.net/projects/c3d/files/c3d/Nightly/c3d-nightly-Linux-gcc64.tar.gz/download -O c3d-nightly-Linux-gcc64.tar.gz \
+      && tar -xzf c3d-nightly-Linux-gcc64.tar.gz \
+      && mv c3d-1.4.4-Linux-gcc64 /usr/local/c3d \
+      && rm c3d-nightly-Linux-gcc64.tar.gz
 ENV C3D_HOME=/usr/local/c3d
 ENV PATH=$C3D_HOME/bin:$PATH
