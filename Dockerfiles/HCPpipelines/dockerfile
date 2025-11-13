@@ -42,25 +42,26 @@ RUN mkdir -p /usr/share/man/man1 /usr/share/man/man2 \
             default-jre \
             default-jdk
 
-# Prerequisite 7: Python3 environment (TESTED - VERIFIED)
+# Prerequisite 7: Python3 environment
 ENV VIRT_ENV=/opt/venv
 RUN python3 -m venv $VIRT_ENV
 ENV PATH=$VIRT_ENV/bin:$PATH
 RUN pip3 install --upgrade pip numpy nibabel
 
-# Prerequisite 2: FMRIP Software Library (TESTED - VERIFIED)
+# Prerequisite 2: FMRIP Software Library
 RUN wget https://fsl.fmrib.ox.ac.uk/fsldownloads/fslconda/releases/getfsl.sh -O fsl.sh && sh fsl.sh && rm fsl.sh
 ENV FSLDIR=/root/fsl/bin
 ENV PATH=$FSLDIR:$PATH
 
-# Prerequisite 3: freesurfer (UNTESTED)
+# Prerequisite 3: freesurfer
 RUN mkdir -p /usr/local/freesurfer
 RUN wget https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/6.0.0/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz
-RUN tar -xzf freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz -C /usr/local/freesurfer && rm freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz
-RUN export PATH=/usr/local/freesurfer:$PATH
-RUN export FS_LICENSE=/usr/local/freesurfer/license.txt # TODO: Add license file to RIS
+RUN tar -xzf freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz && mv freesurfer /usr/local/ && rm freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz
+COPY license.txt /usr/local/freesurfer/license.txt
+ENV PATH=/usr/local/freesurfer/bin:$PATH
+ENV FS_LICENSE=/usr/local/freesurfer/license.txt
 
-# Prerequisite 4: Connectome Workbench (TESTED - VERIFIED)
+# Prerequisite 4: Connectome Workbench
 RUN mkdir -p /usr/local/connectome-workbench
 RUN wget https://www.humanconnectome.org/storage/app/media/workbench/workbench-linux64-v2.1.0.zip
 RUN unzip workbench-linux64-v2.1.0.zip -d /usr/local/connectome-workbench && rm workbench-linux64-v2.1.0.zip
@@ -68,18 +69,17 @@ RUN chmod +x /usr/local/connectome-workbench/workbench/bin_linux64
 ENV C3W_HOME=/usr/local/connectome-workbench/workbench/bin_linux64
 ENV PATH=$C3W_HOME:$PATH
 
-# Prerequisite 5: gradunwarp (TESTED - VERIFIED)
+# Prerequisite 5: gradunwarp
 RUN pip3 install git+https://github.com/Washington-University/gradunwarp.git@1.2.3
 
-# Prerequisite 6: MSM_HOCR v3.0 (TESTED - VERIFIED)
+# Prerequisite 6: MSM_HOCR v3.0
 RUN mkdir -p /usr/local/msm_hocr
 RUN wget https://github.com/ecr05/MSM_HOCR/releases/download/v3.0FSL/msm_centos_v3 && mv msm_centos_v3 /usr/local/msm_hocr/msm_hocr
 RUN chmod +x /usr/local/msm_hocr/msm_hocr
 ENV MSM_HOCR_HOME=/usr/local/msm_hocr
 ENV PATH=$MSM_HOCR_HOME:$PATH
 
-# Prerequisite 8: MRTrix3 (TESTED - VERIFIED)
-https://mrtrix.readthedocs.io/en/latest/installation/deployment.html
+# Prerequisite 8: MRTrix3
 RUN git clone http://github.com/MRtrix3/mrtrix3.git
 RUN cd mrtrix3 && ./configure
 RUN cd mrtrix3 && ./build
@@ -89,7 +89,14 @@ RUN cd mrtrix3 && cp ./mrtrix3.tgz /usr/local/mrtrix3/
 RUN cd /usr/local/mrtrix3/ && tar xvfz mrtrix3.tgz
 ENV PATH=/usr/local/mrtrix3/bin:$PATH
 
-# Prerequisite 9: ANTs (Advanced Normalization Tools)
+# Prerequisite 9: ANTs
+RUN wget https://github.com/ANTsX/ANTs/releases/download/v2.6.3/ants-2.6.3-ubuntu-22.04-X64-gcc.zip
+RUN unzip ants-2.6.3-ubuntu-22.04-X64-gcc.zip && mv ants-2.6.3 /usr/local/ants && rm ants-2.6.3-ubuntu-22.04-X64-gcc.zip
+ENV ANTS_HOME=/usr/local/ants
+ENV PATH=$ANTS_HOME/bin:$PATH
 
-# Prerequisite 10: c3d_affine_tool
-
+# Prerequisite 10: c3d
+RUN wget https://sourceforge.net/projects/c3d/files/c3d/Nightly/c3d-nightly-Linux-gcc64.tar.gz/download -O c3d-nightly-Linux-gcc64.tar.gz
+RUN tar -xzf c3d-nightly-Linux-gcc64.tar.gz && mv c3d-1.4.4-Linux-gcc64 /usr/local/c3d && rm c3d-nightly-Linux-gcc64.tar.gz
+ENV C3D_HOME=/usr/local/c3d
+ENV PATH=$C3D_HOME/bin:$PATH

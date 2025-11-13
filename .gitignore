@@ -1,2 +1,5 @@
 # MacOS
 .DS_Store
+
+# FreeSurfer license file
+Dockerfiles/HCPpipelines/license.txt
