@@ -1,7 +1,7 @@
 # See: https://github.com/Washington-University/HCPpipelines/wiki/Installation-and-Usage-Instructions
 
-# Prerequisite 1: Ubuntu 22.04
-FROM ubuntu:22.04
+# Prerequisite 1: Ubuntu latest LTS
+FROM ubuntu:latest
 
 # Install dependencies
 RUN mkdir -p /usr/share/man/man1 /usr/share/man/man2 \
@@ -32,6 +32,15 @@ RUN mkdir -p /usr/share/man/man1 /usr/share/man/man2 \
             git \
             rsync \
             wget \
+            file \
+            dc \
+            mesa-utils \
+            pulseaudio \
+            libquadmath0 \
+            libopenblas-dev \
+            libgtk2.0-0 \
+            firefox \
+            libgomp1 \
             python3-numpy \
             python3-pip \
             python3-venv \
@@ -44,9 +53,10 @@ ENV PATH=$VIRT_ENV/bin:$PATH
 RUN pip3 install --upgrade pip numpy nibabel
 
 # Prerequisite 2: FMRIP Software Library
-RUN wget https://fsl.fmrib.ox.ac.uk/fsldownloads/fslconda/releases/getfsl.sh -O fsl.sh && sh fsl.sh && rm fsl.sh
-ENV FSLDIR=/root/fsl/bin
-ENV PATH=$FSLDIR:$PATH
+ENV FSLDIR=/usr/local/fsl
+ENV PATH=$FSLDIR/bin:$PATH
+RUN wget https://fsl.fmrib.ox.ac.uk/fsldownloads/fslconda/releases/fslinstaller.py
+RUN python ./fslinstaller.py -d /usr/local/fsl/
 
 # Prerequisite 3: freesurfer
 RUN mkdir -p /usr/local/freesurfer
