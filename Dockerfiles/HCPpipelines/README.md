@@ -10,7 +10,7 @@
 
 3. Activate the included Python venv: `source /opt/venv/bin/activate`
 
-4. Run any setup prior to running the bash script. Check that all PATH variables have been set correctly. If not, run the following command: `PATH=/opt/venv/bin:/usr/local/fsl/bin:/usr/local/freesurfer/bin:/usr/local/connectome-workbench/workbench/bin_linux64:/usr/local/msm_hocr:/usr/local/mrtrix3/bin:/usr/local/ants/bin:/usr/local/c3d/bin:$PATH`
+4. Run any setup prior to running the bash script. Check that all PATH variables have been set correctly. If not, run the following command: `PATH=/opt/venv/bin:/usr/local/fsl/bin:/usr/local/freesurfer/bin:/usr/local/connectome-workbench/workbench/bin_linux64:/usr/local/msm_hocr:/usr/local/mrtrix3/bin:/usr/local/ants/bin:/usr/local/c3d/bin:/usr/local/MATLAB_Runtime_R2022a_Update_9_glnxa64/v912/bin:$PATH`
 
 5. Execute the bash script: `./script.sh`
 
