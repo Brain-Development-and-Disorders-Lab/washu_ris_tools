@@ -34,6 +34,9 @@ RUN mkdir -p /usr/share/man/man1 /usr/share/man/man2 \
             wget \
             file \
             dc \
+            bc \
+            sed \
+            coreutils \
             mesa-utils \
             pulseaudio \
             libquadmath0 \
@@ -116,3 +119,20 @@ RUN wget https://sourceforge.net/projects/c3d/files/c3d/Nightly/c3d-nightly-Linu
       && rm c3d-nightly-Linux-gcc64.tar.gz
 ENV C3D_HOME=/usr/local/c3d
 ENV PATH=$C3D_HOME/bin:$PATH
+
+# Prerequisite 11: MATLAB Runtime (2022a)
+RUN mkdir -p /tmp/MATLAB_Runtime_R2022a_Update_9_glnxa64 && mkdir -p /usr/local/MATLAB_Runtime_R2022a_Update_9_glnxa64
+RUN wget https://ssd.mathworks.com/supportfiles/downloads/R2022a/Release/9/deployment_files/installer/complete/glnxa64/MATLAB_Runtime_R2022a_Update_9_glnxa64.zip \
+      && unzip MATLAB_Runtime_R2022a_Update_9_glnxa64.zip -d /tmp/MATLAB_Runtime_R2022a_Update_9_glnxa64 \
+      && rm MATLAB_Runtime_R2022a_Update_9_glnxa64.zip
+RUN cd /tmp/MATLAB_Runtime_R2022a_Update_9_glnxa64 && ./install -mode silent -agreeToLicense yes -destinationFolder /usr/local/MATLAB_Runtime_R2022a_Update_9_glnxa64
+ENV MATLAB_HOME=/usr/local/MATLAB_Runtime_R2022a_Update_9_glnxa64/v912
+ENV PATH=$MATLAB_HOME/bin:$PATH
+
+# HCPpipelines-5.0.0
+COPY HCPpipelines-5.0.0.tgz /usr/local/HCPpipelines-5.0.0.tgz
+RUN tar -xzf /usr/local/HCPpipelines-5.0.0.tgz -C /usr/local/ \
+      && mv /usr/local/HCPpipelines-5.0.0 /usr/local/HCPpipelines \
+      && rm /usr/local/HCPpipelines-5.0.0.tgz
+ENV HCPPIPEDIR=/usr/local/HCPpipelines
+ENV PATH=$HCPPIPEDIR/bin:$PATH
