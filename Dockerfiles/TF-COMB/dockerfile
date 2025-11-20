@@ -34,6 +34,6 @@ RUN mkdir -p /usr/share/man/man1 /usr/share/man/man2 \
             default-jdk
 
 # Install TF-COMB & Jupyter Notebook
-RUN pip3 install TF-COMB && \
+RUN pip3 install git+https://github.com/loosolab/TF-COMB@dev && \
     pip3 --no-cache-dir install jupyterlab && \
     pip3 --no-cache-dir install notebook
