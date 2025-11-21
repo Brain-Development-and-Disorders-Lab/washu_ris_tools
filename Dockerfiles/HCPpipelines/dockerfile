@@ -1,19 +1,19 @@
 # See: https://github.com/Washington-University/HCPpipelines/wiki/Installation-and-Usage-Instructions
 
-# Prerequisite 1: Ubuntu latest LTS
-FROM ubuntu:latest
+# Prerequisite 1: Ubuntu latest 18.04 LTS
+FROM ubuntu:18.04
 
 # Install dependencies
 RUN mkdir -p /usr/share/man/man1 /usr/share/man/man2 \
       && apt update \
+      && apt install -y software-properties-common \
+      && add-apt-repository -y ppa:ubuntu-toolchain-r/test \
       && apt install -y \
             curl \
-            software-properties-common \
             ant \
             g++-11 \
             zlib1g-dev \
             libcurl4-openssl-dev \
-            zlib1g-dev \
             libfftw3-dev \
             libc++-dev \
             hdf5-tools \
@@ -29,6 +29,7 @@ RUN mkdir -p /usr/share/man/man1 /usr/share/man/man2 \
             vim \
             nano \
             tmux \
+            tcsh \
             git \
             rsync \
             wget \
@@ -62,6 +63,20 @@ RUN wget https://fsl.fmrib.ox.ac.uk/fsldownloads/fslconda/releases/fslinstaller.
 RUN python ./fslinstaller.py -d /usr/local/fsl/
 
 # Prerequisite 3: freesurfer
+RUN apt install -y \
+      libpng16-16 \
+      libjpeg-turbo8 \
+      libtiff5 \
+      libx11-6 \
+      libxext6 \
+      libxrender1 \
+      libxt6 \
+      libxi6 \
+      libxmu6 \
+      libxpm4 \
+      libfontconfig1 \
+      libfreetype6 \
+      libgfortran3
 RUN mkdir -p /usr/local/freesurfer
 RUN wget https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/6.0.0/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz \
       && tar -xzf freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz \
@@ -70,6 +85,7 @@ RUN wget https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/6.0.0/freesurfer
 COPY license.txt /usr/local/freesurfer/license.txt
 ENV PATH=/usr/local/freesurfer/bin:$PATH
 ENV FS_LICENSE=/usr/local/freesurfer/license.txt
+ENV FREESURFER_HOME=/usr/local/freesurfer
 
 # Prerequisite 4: Connectome Workbench
 RUN mkdir -p /usr/local/connectome-workbench
@@ -92,6 +108,9 @@ ENV MSM_HOCR_HOME=/usr/local/msm_hocr
 ENV PATH=$MSM_HOCR_HOME:$PATH
 
 # Prerequisite 8: MRTrix3
+RUN apt install -y \
+        qtbase5-dev \
+        qt5-default
 RUN mkdir -p /usr/local/mrtrix3
 RUN git clone http://github.com/MRtrix3/mrtrix3.git \
       && cd mrtrix3 \
@@ -105,10 +124,10 @@ RUN git clone http://github.com/MRtrix3/mrtrix3.git \
 ENV PATH=/usr/local/mrtrix3/bin:$PATH
 
 # Prerequisite 9: ANTs
-RUN wget https://github.com/ANTsX/ANTs/releases/download/v2.6.3/ants-2.6.3-ubuntu-22.04-X64-gcc.zip \
-      && unzip ants-2.6.3-ubuntu-22.04-X64-gcc.zip \
+RUN wget https://github.com/ANTsX/ANTs/releases/download/v2.6.3/ants-2.6.3-ubuntu18.04-X64-gcc.zip \
+      && unzip ants-2.6.3-ubuntu18.04-X64-gcc.zip \
       && mv ants-2.6.3 /usr/local/ants \
-      && rm ants-2.6.3-ubuntu-22.04-X64-gcc.zip
+      && rm ants-2.6.3-ubuntu18.04-X64-gcc.zip
 ENV ANTS_HOME=/usr/local/ants
 ENV PATH=$ANTS_HOME/bin:$PATH
 
@@ -120,7 +139,11 @@ RUN wget https://sourceforge.net/projects/c3d/files/c3d/Nightly/c3d-nightly-Linu
 ENV C3D_HOME=/usr/local/c3d
 ENV PATH=$C3D_HOME/bin:$PATH
 
-# Prerequisite 11: MATLAB Runtime (2022a)
+# Prerequisite 11a: MATLAB (2022a)
+# Populate dependencies from: https://github.com/mathworks-ref-arch/container-images/blob/main/matlab-deps/r2022a/ubuntu20.04/Dockerfile
+# Install MATLAB from: https://github.com/mathworks-ref-arch/matlab-dockerfile/blob/main/Dockerfile
+
+# Prerequisite 11b: MATLAB Runtime (2022a)
 RUN mkdir -p /tmp/MATLAB_Runtime_R2022a_Update_9_glnxa64 && mkdir -p /usr/local/MATLAB_Runtime_R2022a_Update_9_glnxa64
 RUN wget https://ssd.mathworks.com/supportfiles/downloads/R2022a/Release/9/deployment_files/installer/complete/glnxa64/MATLAB_Runtime_R2022a_Update_9_glnxa64.zip \
       && unzip MATLAB_Runtime_R2022a_Update_9_glnxa64.zip -d /tmp/MATLAB_Runtime_R2022a_Update_9_glnxa64 \
