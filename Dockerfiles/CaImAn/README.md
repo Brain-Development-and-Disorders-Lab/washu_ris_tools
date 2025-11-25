@@ -1,6 +1,6 @@
 # CaImAn
 
-> ℹ️ Docker image for the [CaImAn](https://github.com/flatironinstitute/CaImAn) repository.
+> Docker container for the [CaImAn](https://github.com/flatironinstitute/CaImAn) repository.
 
 ## Usage - Interactive
 

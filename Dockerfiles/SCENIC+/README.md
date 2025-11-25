@@ -1,6 +1,6 @@
 # SCENIC+ and Jupyter Notebook
 
-> This Docker container allows you to use SCENIC+ with a Jupyter Notebook.
+> This Docker container allows you to use [SCENIC+](https://github.com/aertslab/scenicplus) with a Jupyter Notebook.
 
 ## Usage
 

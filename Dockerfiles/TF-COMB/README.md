@@ -1,6 +1,6 @@
 # TF-COMB and Jupyter Notebook
 
-> This Docker container allows you to use TF-COMB with a Jupyter Notebook.
+> This Docker container allows you to use [TF-COMB](https://github.com/loosolab/TF-COMB/tree/main) with a Jupyter Notebook.
 
 ## Usage
 

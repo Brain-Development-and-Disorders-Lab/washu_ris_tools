@@ -1,6 +1,6 @@
 # HCP Pipelines
 
-> This Docker container allows you to run HCP Pipeline scripts on RIS Compute1.
+> This Docker container allows you to run [HCP Pipeline](https://github.com/Washington-University/HCPpipelines) scripts on RIS Compute1.
 
 ## Usage
 

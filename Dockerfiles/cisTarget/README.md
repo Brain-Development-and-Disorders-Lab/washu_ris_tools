@@ -1,6 +1,6 @@
 # cisTarget
 
-> ℹ️ Docker image for the [create_cisTarget_databases](https://github.com/aertslab/create_cisTarget_databases) repository.
+> Docker container for the [create_cisTarget_databases](https://github.com/aertslab/create_cisTarget_databases) repository.
 
 ## Usage
 
