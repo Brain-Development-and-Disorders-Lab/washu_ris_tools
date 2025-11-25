@@ -3,3 +3,8 @@
 
 # FreeSurfer license file
 Dockerfiles/HCPpipelines/license.txt
+
+# MATLAB license file
+Dockerfiles/HCPpipelines/license.lic
+Dockerfiles/HCPpipelines/matlab-fik.txt
+Dockerfiles/HCPpipelines/matlab_R*.zip

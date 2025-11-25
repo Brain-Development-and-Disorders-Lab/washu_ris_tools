@@ -1,0 +1,83 @@
+FROM fedora:36
+
+## ------------------------- ##
+## Create software directory ##
+## ------------------------- ##
+
+RUN mkdir -p /opt/cobind/
+
+## ----------------------- ##
+## Copy all required files ##
+## ----------------------- ##
+
+COPY requirements-sys.txt /opt/cobind/requirements-sys.txt
+COPY requirements.txt /opt/cobind/requirements.txt
+COPY requirements.R /opt/cobind/requirements.R
+COPY matrix-clustering_stand-alone /opt/cobind/matrix-clustering_stand-alone
+
+WORKDIR /opt/cobind
+
+## --------------------------- ##
+## Install system requirements ##
+## --------------------------- ##
+
+RUN xargs dnf -y install < "requirements-sys.txt"
+RUN ln -s /usr/bin/python3.8 /usr/bin/python
+
+RUN dnf erase -y ghostscript
+
+RUN xargs dnf -y install < "requirements-sys.txt"
+
+## Ghostscript:
+RUN wget https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs925/ghostscript-9.25.tar.gz
+RUN tar zxf ghostscript-9.25.tar.gz
+WORKDIR ghostscript-9.25
+RUN ./configure && make && make install
+WORKDIR /opt/cobind
+
+## ---------------- ##
+## Install Bedtools ##
+## ---------------- ##
+
+RUN mkdir bedtools \
+    && git clone https://github.com/arq5x/bedtools2.git bedtools
+WORKDIR /opt/cobind/bedtools
+RUN make \
+    && make install DESTDIR="/opt/cobind/lib" \
+    && ln -s /opt/cobind/lib/usr/local/bin/bedtools /usr/local/bin/bedtools
+
+## ------------------ ##
+## Install R packages ##
+## ------------------ ##
+
+WORKDIR /opt/cobind
+RUN Rscript requirements.R
+
+## ----------------------------------- ##
+## Compile clustering-related programs ##
+## ----------------------------------- ##
+
+WORKDIR /opt/cobind/matrix-clustering_stand-alone/compare-matrices-quick
+RUN make
+WORKDIR /opt/cobind
+
+RUN chmod +x /opt/cobind/matrix-clustering_stand-alone/matrix-clustering.R \
+    && ln -s /opt/cobind/matrix-clustering_stand-alone/matrix-clustering.R /usr/bin/matrix-clustering
+
+## -------------------------- ##
+## Switch to non-root account ##
+## -------------------------- ##
+
+RUN useradd -u 8888 user \
+    && chown -R user /opt/cobind/
+USER user
+
+## ----------------------- ##
+## Install Python packages ##
+## ----------------------- ##
+
+RUN python3.8 -m ensurepip --root /opt/cobind/lib
+ENV PYTHONPATH="/opt/cobind/lib/usr/local/lib/python3.8/site-packages:/opt/cobind/lib/usr/local/lib64/python3.8/site-packages"
+RUN python3.8 -m pip install --root /opt/cobind/lib -r requirements.txt
+
+# ## End of Dockerfile
