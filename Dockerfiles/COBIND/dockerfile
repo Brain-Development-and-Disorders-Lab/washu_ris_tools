@@ -22,6 +22,22 @@ WORKDIR /opt/cobind
 ## --------------------------- ##
 
 RUN xargs dnf -y install < "requirements-sys.txt"
+
+## ------------------------- ##
+## Install mbedtls if needed ##
+## ------------------------- ##
+
+# Try to install mbedtls-devel, if not available build from source
+RUN (dnf -y install mbedtls-devel 2>/dev/null || \
+     (cd /tmp && \
+      git clone --depth 1 --branch v3.6.2 https://github.com/Mbed-TLS/mbedtls.git && \
+      cd mbedtls && \
+      mkdir build && cd build && \
+      cmake .. && \
+      make -j$(nproc) && \
+      make install && \
+      ldconfig && \
+      cd / && rm -rf /tmp/mbedtls))
 RUN ln -s /usr/bin/python3.8 /usr/bin/python
 
 RUN dnf erase -y ghostscript
@@ -50,7 +66,12 @@ RUN make \
 ## Install R packages ##
 ## ------------------ ##
 
+# Create R HTML documentation directory to prevent errors during package installation
+RUN mkdir -p /usr/share/doc/R/html
+
 WORKDIR /opt/cobind
+# Set environment variable to allow V8 package to download static libv8 build
+ENV DOWNLOAD_STATIC_LIBV8=1
 RUN Rscript requirements.R
 
 ## ----------------------------------- ##
@@ -80,4 +101,4 @@ RUN python3.8 -m ensurepip --root /opt/cobind/lib
 ENV PYTHONPATH="/opt/cobind/lib/usr/local/lib/python3.8/site-packages:/opt/cobind/lib/usr/local/lib64/python3.8/site-packages"
 RUN python3.8 -m pip install --root /opt/cobind/lib -r requirements.txt
 
-# ## End of Dockerfile
+## End of Dockerfile
