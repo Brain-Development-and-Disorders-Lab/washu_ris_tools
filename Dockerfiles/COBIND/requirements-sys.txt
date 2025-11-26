@@ -1,6 +1,8 @@
 bzip2-devel
 cairo-devel
+cmake
 fribidi-devel
+fontconfig-devel
 freetype-devel
 gcc
 gcc-c++
@@ -11,6 +13,8 @@ java-1.8.0-openjdk-devel
 libpng-devel
 libtiff-devel
 libjpeg-turbo-devel
+libjpeg-devel
+libwebp-devel
 libcurl-devel
 libgit2-devel
 libX11-devel
@@ -21,9 +25,11 @@ openssl-devel
 pandoc
 patch
 pcre-devel
+pkg-config
 python3.8
 R
 readline-devel
 xz-devel
 wget
 zlib-devel
+v8-devel
