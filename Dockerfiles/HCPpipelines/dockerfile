@@ -131,84 +131,31 @@ RUN wget https://github.com/ANTsX/ANTs/releases/download/v2.6.3/ants-2.6.3-ubunt
 ENV ANTS_HOME=/usr/local/ants
 ENV PATH=$ANTS_HOME/bin:$PATH
 
-# Prerequisite 10: c3d
-RUN wget https://sourceforge.net/projects/c3d/files/c3d/Nightly/c3d-nightly-Linux-gcc64.tar.gz/download -O c3d-nightly-Linux-gcc64.tar.gz \
-      && tar -xzf c3d-nightly-Linux-gcc64.tar.gz \
-      && mv c3d-1.4.4-Linux-gcc64 /usr/local/c3d \
-      && rm c3d-nightly-Linux-gcc64.tar.gz
+# Prerequisite 10: c3d (use older stable release compatible with Ubuntu 18.04)
+RUN wget -L https://sourceforge.net/projects/c3d/files/c3d/1.0.0/c3d-1.0.0-Linux-x86_64.tar.gz/download -O c3d-1.0.0-Linux-x86_64.tar.gz \
+      && tar -xzf c3d-1.0.0-Linux-x86_64.tar.gz \
+      && mv c3d-1.0.0-Linux-x86_64 /usr/local/c3d \
+      && rm c3d-1.0.0-Linux-x86_64.tar.gz
 ENV C3D_HOME=/usr/local/c3d
 ENV PATH=$C3D_HOME/bin:$PATH
 
-# Prerequisite 11a: MATLAB (2022a)
-# Populate dependencies from: https://github.com/mathworks-ref-arch/container-images/blob/main/matlab-deps/r2022a/ubuntu20.04/Dockerfile
-# Install MATLAB from: https://github.com/mathworks-ref-arch/matlab-dockerfile/blob/main/Dockerfile
-COPY matlab-dependencies.txt /tmp/matlab-dependencies.txt
-RUN export DEBIAN_FRONTEND=noninteractive \
-    && apt-get update \
-    && apt-get install -y software-properties-common \
-    && add-apt-repository -y universe \
-    && apt-get update \
-    && apt-get install --no-install-recommends -y `cat /tmp/matlab-dependencies.txt` \
-    && apt-get clean && apt-get -y autoremove \
-    && rm -rf /var/lib/apt/lists/*
-RUN [ -d /usr/share/X11/xkb ] || mkdir -p /usr/share/X11/xkb
-ARG MATLAB_VERSION="R2021a"
-ARG MATLAB_INSTALL_LOCATION="/opt/matlab/${MATLAB_VERSION}"
-ARG MATLAB_INSTALLER="matlab_${MATLAB_VERSION}_glnxa64"
-COPY matlab-fik.txt /tmp/matlab-fik.txt
-RUN export DEBIAN_FRONTEND=noninteractive \
-    && apt-get update \
-    && apt-get install --no-install-recommends --yes \
-    wget \
-    ca-certificates \
-    unzip \
-    && apt-get clean \
-    && apt-get autoremove \
-    && rm -rf /var/lib/apt/lists/*
-RUN adduser --shell /bin/bash --disabled-password --gecos "" matlab \
-    && echo "matlab ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/matlab \
-    && chmod 0440 /etc/sudoers.d/matlab
-# Create installer properties file with FIK for traditional MATLAB installer
-RUN MATLAB_FIK=$(cat /tmp/matlab-fik.txt | tr -d '\n' | tr -d '\r') \
-    && echo "destinationFolder=${MATLAB_INSTALL_LOCATION}" > /tmp/installer_input.txt \
-    && echo "fileInstallationKey=${MATLAB_FIK}" >> /tmp/installer_input.txt \
-    && echo "agreeToLicense=yes" >> /tmp/installer_input.txt \
-    && echo "mode=silent" >> /tmp/installer_input.txt \
-    && echo "product.MATLAB" >> /tmp/installer_input.txt
-# Copy MATLAB installer from build context
-RUN mkdir -p /tmp/${MATLAB_INSTALLER}
-COPY ${MATLAB_INSTALLER}.zip /tmp/${MATLAB_INSTALLER}.zip
-RUN cd /tmp/${MATLAB_INSTALLER} \
-    && unzip -q /tmp/${MATLAB_INSTALLER}.zip \
-    && rm /tmp/${MATLAB_INSTALLER}.zip
-# Run traditional MATLAB installer with properties file
-# RUN cd /tmp/matlab_R2022a_glnxa64 \
-#     && if [ -f install ]; then \
-#         chmod +x install && ./install -inputFile /tmp/installer_input.txt; \
-#     elif [ -f install_unix.sh ]; then \
-#         chmod +x install_unix.sh && ./install_unix.sh -inputFile /tmp/installer_input.txt; \
-#     else \
-#         echo "Error: MATLAB installer script not found. Contents of /tmp/matlab_R2022a_glnxa64:"; \
-#         ls -la /tmp/matlab_R2022a_glnxa64; \
-#         false; \
-#     fi \
-#     || (echo "MATLAB Installation Failure. Check installer logs." && false) \
-#     && rm -rf /tmp/matlab_R2022a_glnxa64 /tmp/matlab-fik.txt /tmp/installer_input.txt \
-#     && ln -s ${MATLAB_INSTALL_LOCATION}/bin/matlab /usr/local/bin/matlab
+# Prerequisite 11: MATLAB Runtime (2022a)
+RUN mkdir -p /tmp/MATLAB_Runtime_R2022a_Update_9_glnxa64 && mkdir -p /usr/local/MATLAB_Runtime_R2022a_Update_9_glnxa64
+RUN wget https://ssd.mathworks.com/supportfiles/downloads/R2022a/Release/9/deployment_files/installer/complete/glnxa64/MATLAB_Runtime_R2022a_Update_9_glnxa64.zip \
+      && unzip MATLAB_Runtime_R2022a_Update_9_glnxa64.zip -d /tmp/MATLAB_Runtime_R2022a_Update_9_glnxa64 \
+      && rm MATLAB_Runtime_R2022a_Update_9_glnxa64.zip
+RUN cd /tmp/MATLAB_Runtime_R2022a_Update_9_glnxa64 && ./install -mode silent -agreeToLicense yes -destinationFolder /usr/local/MATLAB_Runtime_R2022a_Update_9_glnxa64
+ENV MATLAB_HOME=/usr/local/MATLAB_Runtime_R2022a_Update_9_glnxa64/v912
+ENV PATH=$MATLAB_HOME/bin:$PATH
 
-# # Prerequisite 11b: MATLAB Runtime (2022a)
-# RUN mkdir -p /tmp/MATLAB_Runtime_R2022a_Update_9_glnxa64 && mkdir -p /usr/local/MATLAB_Runtime_R2022a_Update_9_glnxa64
-# RUN wget https://ssd.mathworks.com/supportfiles/downloads/R2022a/Release/9/deployment_files/installer/complete/glnxa64/MATLAB_Runtime_R2022a_Update_9_glnxa64.zip \
-#       && unzip MATLAB_Runtime_R2022a_Update_9_glnxa64.zip -d /tmp/MATLAB_Runtime_R2022a_Update_9_glnxa64 \
-#       && rm MATLAB_Runtime_R2022a_Update_9_glnxa64.zip
-# RUN cd /tmp/MATLAB_Runtime_R2022a_Update_9_glnxa64 && ./install -mode silent -agreeToLicense yes -destinationFolder /usr/local/MATLAB_Runtime_R2022a_Update_9_glnxa64
-# ENV MATLAB_HOME=/usr/local/MATLAB_Runtime_R2022a_Update_9_glnxa64/v912
-# ENV PATH=$MATLAB_HOME/bin:$PATH
+# HCPpipelines-5.0.0
+COPY HCPpipelines-5.0.0.tgz /usr/local/HCPpipelines-5.0.0.tgz
+RUN tar -xzf /usr/local/HCPpipelines-5.0.0.tgz -C /usr/local/ \
+      && mv /usr/local/HCPpipelines-5.0.0 /usr/local/HCPpipelines \
+      && rm /usr/local/HCPpipelines-5.0.0.tgz
+ENV HCPPIPEDIR=/usr/local/HCPpipelines
+ENV PATH=$HCPPIPEDIR/bin:$PATH
 
-# # HCPpipelines-5.0.0
-# COPY HCPpipelines-5.0.0.tgz /usr/local/HCPpipelines-5.0.0.tgz
-# RUN tar -xzf /usr/local/HCPpipelines-5.0.0.tgz -C /usr/local/ \
-#       && mv /usr/local/HCPpipelines-5.0.0 /usr/local/HCPpipelines \
-#       && rm /usr/local/HCPpipelines-5.0.0.tgz
-# ENV HCPPIPEDIR=/usr/local/HCPpipelines
-# ENV PATH=$HCPPIPEDIR/bin:$PATH
+# Copy test script and ensure PATH is set
+COPY test_tools.sh /usr/local/bin/test_tools.sh
+RUN chmod +x /usr/local/bin/test_tools.sh
